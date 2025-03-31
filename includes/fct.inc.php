@@ -21,7 +21,7 @@
  */
 function estConnecte()
 {
-    return isset($_SESSION['idVisiteur']);
+    return isset($_SESSION['idVisiteur']) || isset($_SESSION['idComptable']);
 }
 
 /**
@@ -33,13 +33,18 @@ function estConnecte()
  *
  * @return null
  */
-function connecter($idVisiteur, $nom, $prenom)
+function connecterV($idVisiteur, $nom, $prenom)
 {
     $_SESSION['idVisiteur'] = $idVisiteur;
     $_SESSION['nom'] = $nom;
     $_SESSION['prenom'] = $prenom;
 }
-
+function connecterC($idComptable, $nom, $prenom)
+{
+    $_SESSION['idComptable'] = $idComptable;
+    $_SESSION['nom'] = $nom;
+    $_SESSION['prenom'] = $prenom;
+}
 /**
  * Détruit la session active
  *
@@ -101,7 +106,7 @@ function getMois($date)
 /**
  * Indique si une valeur est un entier positif ou nul
  *
- * @param Integer $valeur Valeur
+ * @param String $valeur Valeur
  *
  * @return Boolean vrai ou faux
  */
@@ -119,14 +124,18 @@ function estEntierPositif($valeur)
  */
 function estTableauEntiers($tabEntiers)
 {
-    $boolReturn = true;
+    if (!is_array($tabEntiers)) {
+        return false; // Empêche l'erreur si ce n'est pas un tableau
+    }
+
     foreach ($tabEntiers as $unEntier) {
-        if (!estEntierPositif($unEntier)) {
-            $boolReturn = false;
+        if (!is_numeric($unEntier) || !estEntierPositif($unEntier)) {
+            return false;
         }
     }
-    return $boolReturn;
+    return true;
 }
+
 
 /**
  * Vérifie si une date est inférieure d'un an à la date actuelle
@@ -246,4 +255,68 @@ function nbErreurs()
     } else {
         return count($_REQUEST['erreurs']);
     }
+}
+function getMoisPrecedent($mois){
+    $annee = substr($mois, 0,4);
+    $moisrecup = substr($mois, -2);
+    if ($moisrecup = 01){
+        $moisPrecedent = 12;
+        $anneePrecedente = $annee -1;
+    }
+    else {
+        $moisPrecedent = $moisrecup -1;
+        $anneePrecedente = $annee;
+    }
+    return $anneePrecedente . $moisPrecedent;
+}
+
+function getMoisSuivant($mois){
+    $annee = substr($mois, 0,4);
+    $moisrecup = substr($mois, -2);
+    if ($moisrecup = 12){
+        $moisSuivant = 01;
+        $anneeSuivante = $annee + 1;
+    }
+    else {
+        $moisSuivant = $moisrecup + 1;
+        $anneeSuivante = $annee;
+    }
+    return $anneeSuivante . $moisSuivant;
+}
+
+/**
+ * Retourne les 12 mois precedents
+ *
+ * @param String $date au format  jj/mm/aaaa
+ *
+ * @return String Mois au format aaaamm
+ */
+function getDerniers12Mois($mois) {
+    // Extraire l'année et le mois
+    $numAnnee = (int)substr($mois, 0, 4);
+    $numMois = (int)substr($mois, 4, 2);
+
+    // Initialiser un tableau pour stocker les mois
+    $listemois = array();
+
+    // Boucle sur les 12 derniers mois
+    for ($i = 0; $i < 12; $i++) {
+        // Formater le mois avec deux chiffres
+        $listemois[$i] = [
+            'mois' => $numAnnee . str_pad($numMois, 2, '0', STR_PAD_LEFT), // Format "YYYYMM"
+            'numAnnee' => $numAnnee,
+            'numMois' => str_pad($numMois, 2, '0', STR_PAD_LEFT) // Format "MM"
+        ];
+
+        // Décrémenter le mois
+        $numMois--;
+
+        // Si on passe en dessous de janvier, revenir à décembre de l'année précédente
+        if ($numMois == 0) {
+            $numMois = 12;
+            $numAnnee--;
+        }
+    }
+
+    return $listemois;
 }

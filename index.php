@@ -42,5 +42,8 @@ case 'etatFrais':
 case 'deconnexion':
     include 'controleurs/c_deconnexion.php';
     break;
+case 'validerfichefrais':
+    include 'controleurs/c_validerfichefrais.php';
+    break;    
 }
 require 'vues/v_pied.php';

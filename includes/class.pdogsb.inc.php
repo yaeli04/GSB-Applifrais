@@ -105,6 +105,37 @@ class PdoGsb
     }
 
     /**
+     * Retourne les informations d'un comptable
+     *
+     * @param String $login Login du comptable
+     * @param String $mdp   Mot de passe du comptable
+     *
+     * @return l'id, le nom et le prénom sous la forme d'un tableau associatif
+     */
+    public function getInfosComptable($login,$mdp)
+    {
+        $requetePrepare=PdoGsb::$monPdo->prepare(
+            'SELECT comptable.id AS id, comptable.nom AS nom,'
+            . 'comptable.prenom AS prenom '
+            . 'FROM comptable '
+            . 'WHERE comptable.login = :unLogin AND comptable.mdp= :unMdp '
+        );
+        $requetePrepare->bindParam(':unLogin', $login, PDO::PARAM_STR);
+        $requetePrepare->bindParam(':unMdp', $mdp, PDO::PARAM_STR);
+        $requetePrepare->execute();
+        return $requetePrepare->fetch();
+    }
+    public function getLesVisiteurs()
+    {
+        $requetePrepare = PdoGsb::$monPdo->prepare(
+            'SELECT nom, prenom, id FROM visiteur ORDER BY nom'
+        );
+        $requetePrepare->execute();
+        return $requetePrepare->fetchAll();
+    }
+
+
+    /**
      * Retourne sous forme d'un tableau associatif toutes les lignes de frais
      * hors forfait concernées par les deux arguments.
      * La boucle foreach ne peut être utilisée ici car on procède
@@ -486,4 +517,31 @@ class PdoGsb
         $requetePrepare->bindParam(':unMois', $mois, PDO::PARAM_STR);
         $requetePrepare->execute();
     }
+    /**
+     * Verifie la fiche frais
+     *
+     * @param String $idVisiteur ID du visiteur
+     * @param String $mois       Mois sous la forme aaaamm
+     * @param String $etat       Nouvel état de la fiche de frais
+     *
+     * @return null
+     */
+    public function verifFicheFrais($idVisiteur, $mois)
+    {
+        $requetePrepare = PdoGSB::$monPdo->prepare(
+            'SELECT ficheFrais.mois'
+            .'FROM ficheFrais'
+            .'WHERE ficheFrais.mois = :unMois'
+            .'AND ficheFrais.mois = :unIdVisiteur'
+
+        );
+        $requetePrepare->bindParam(':unIdVisiteur', $idVisiteur, PDO::PARAM_STR);
+        $requetePrepare->bindParam(':unMois', $mois, PDO::PARAM_STR);
+        $requetePrepare->execute();
+        if (!$requetePrepare->fetchAll()) {
+            $boolReturn = false ;
+        }
+        return $boolReturn;
+    }
 }
+
