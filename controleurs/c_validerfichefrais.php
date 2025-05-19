@@ -25,14 +25,12 @@
         $visiteurASelectionner = $lesCles[0];
         $lesCles1[] = array_keys($listeMois);  
         $moisASelectionner = $lesCles1[0];
-        include "vues/v_listeVisiteur.php";
+        include 'vues/v_listeVisiteur.php';
         break;
 
     case 'detailFicheFrais':
-        
         $mois = filter_input(INPUT_POST, 'lstMois', FILTER_SANITIZE_SPECIAL_CHARS);
         $idVisiteur = filter_input(INPUT_POST, 'lstVisiteurs', FILTER_DEFAULT);
-        var_dump($mois,$idVisiteur);
 
         if (!$pdo->verifFicheFrais($idVisiteur, $mois)) {
             ajouterErreur('Erreur : Aucune fiche de frais pour ce mois et ce visiteur sélectionné');
@@ -55,8 +53,11 @@
 
             // Affichage de la fiche de frais
         
-            include 'vues/v_etatFrais.php';
+            include 'vues/v_detailFicheFrais.php';
         }
+        break;
+        case 'majFicheFrais':
+            echo 'bhb';
         break;
 }
 ?>
